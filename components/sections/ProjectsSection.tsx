@@ -1,7 +1,12 @@
+'use client';
+
+import { useState } from 'react';
 import { projects } from '@/lib/content/projects-data';
 import ProjectCard from '@/components/projects/ProjectCard';
 
 export default function ProjectsSection() {
+  const [openCaseStudyId, setOpenCaseStudyId] = useState<string | null>(null);
+
   return (
     <section className="relative min-h-full px-6 md:px-10 lg:px-16 py-12 md:py-16">
       <div className="max-w-6xl mx-auto space-y-10">
@@ -15,9 +20,16 @@ export default function ProjectsSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 items-start">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              caseStudyOpen={openCaseStudyId === project.id}
+              onCaseStudyToggle={() => {
+                setOpenCaseStudyId((current) => (current === project.id ? null : project.id));
+              }}
+            />
           ))}
         </div>
       </div>

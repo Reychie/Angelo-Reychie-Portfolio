@@ -10,7 +10,6 @@ import SkillsSection from '@/components/sections/SkillsSection';
 import ExperienceSection from '@/components/sections/ExperienceSection';
 import ProjectsSection from '@/components/sections/ProjectsSection';
 import ContactSection from '@/components/sections/ContactSection';
-import CustomCursor from '@/components/layout/CustomCursor';
 import Footer from '@/components/layout/Footer';
 import SectionTransition from '@/components/layout/SectionTransition';
 import type { Section } from '@/lib/navigation';
@@ -76,7 +75,6 @@ export default function Home() {
   return (
     <>
       <SpaceBackground activeSection={activeSection} />
-      <CustomCursor />
       <Header activeSection={activeSection} onSectionChange={handleSectionChange} />
 
       <main className="fixed inset-0 overflow-hidden">

@@ -28,7 +28,8 @@ export type SkillIconKey =
   | 'github'
   | 'postman'
   | 'vscode'
-  | 'vercel';
+  | 'vercel'
+  | 'expo';
 
 export type CategoryIconKey = 'code' | 'window' | 'server' | 'database' | 'spark' | 'shield' | 'tool';
 

@@ -189,11 +189,6 @@ body {
   animation: fade var(--duration-section) var(--ease-section) both;
 }
 
-html.has-custom-cursor,
-html.has-custom-cursor * {
-  cursor: none !important;
-}
-
 .hover-lift {
   transition:
     transform var(--duration-interaction) var(--ease-interaction),
@@ -568,6 +563,12 @@ html.has-custom-cursor * {
 }
 .skill-chip:hover { color: #fffaff; border-color: rgba(155, 109, 255, 0.56); background: rgba(155, 109, 255, 0.14); transform: translateY(-2px); }
 .skill-chip-icon { display: inline-flex; color: #9b6dff; }
+
+/* Softens near-black brand logos without adding a background plate. */
+.tech-logo-soft {
+  filter: brightness(0) invert(0.78);
+  opacity: 0.95;
+}
 
 .profile-frame-wrap { display: grid; place-items: center; min-width: 0; }
 .profile-frame {

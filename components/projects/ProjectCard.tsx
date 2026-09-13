@@ -1,19 +1,35 @@
 'use client';
 
-import { useState } from 'react';
 import type { Project } from '@/lib/content/projects-data';
+import type { SkillIconKey } from '@/lib/content/skills-data';
+import { SkillIcon } from '@/components/icons/TechIcons';
 import ProjectBrowserPreview from '@/components/projects/ProjectBrowserPreview';
 
 interface ProjectCardProps {
   project: Project;
+  caseStudyOpen: boolean;
+  onCaseStudyToggle: () => void;
 }
 
-export default function ProjectCard({ project }: ProjectCardProps) {
-  const [open, setOpen] = useState(false);
+const technologyIcons: Record<string, SkillIconKey> = {
+  React: 'react',
+  Vite: 'vite',
+  'Node.js': 'nodejs',
+  MongoDB: 'mongodb',
+  'Socket.IO': 'socketio',
+  PHP: 'php',
+  MySQL: 'mysql',
+  JavaScript: 'javascript',
+  Expo: 'expo',
+  'React Native': 'reactnative',
+};
+
+export default function ProjectCard({ project, caseStudyOpen, onCaseStudyToggle }: ProjectCardProps) {
   const liveUrl = project.liveUrl?.trim();
+  const caseStudyPanelId = `case-study-panel-${project.id}`;
 
   return (
-    <article id={`case-${project.id}`} className="group overflow-hidden rounded-2xl space-card hover-lift">
+    <article id={`case-${project.id}`} className="group overflow-hidden rounded-2xl space-card hover-lift self-start">
       <div className="relative aspect-[16/10] overflow-hidden border-b border-border bg-[#070711]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -34,17 +50,30 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           <p className="text-sm text-foreground">{project.role}</p>
         </div>
 
-        <p className="text-sm text-muted">{project.technologies.join(' • ')}</p>
+        <ul className="flex flex-wrap gap-2" aria-label={`${project.title} technologies`}>
+          {project.technologies.map((technology) => {
+            const icon = technologyIcons[technology] ?? 'javascript';
+            return (
+              <li key={`${project.id}-${technology}`} className="skill-chip">
+                <span className="skill-chip-icon" aria-hidden="true">
+                  <SkillIcon name={technology} icon={icon} />
+                </span>
+                <span>{technology}</span>
+              </li>
+            );
+          })}
+        </ul>
 
         <div className="flex flex-wrap gap-x-3 gap-y-2 pt-1 text-sm">
           <button
             type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            className={`project-link-button${open ? ' project-link-button-active' : ''}`}
+            onClick={onCaseStudyToggle}
+            aria-expanded={caseStudyOpen}
+            aria-controls={caseStudyPanelId}
+            className={`project-link-button${caseStudyOpen ? ' project-link-button-active' : ''}`}
           >
-            <span>{open ? 'Hide Case Study' : 'Case Study'}</span>
-            <span aria-hidden="true">{open ? '−' : '+'}</span>
+            <span>{caseStudyOpen ? 'Hide Case Study' : 'View Case Study'}</span>
+            <span aria-hidden="true">{caseStudyOpen ? '−' : '+'}</span>
           </button>
           <a
             href={project.githubUrl}
@@ -81,8 +110,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           )}
         </div>
 
-        {open && (
-          <div className="pt-3 border-t border-border space-y-3">
+        {caseStudyOpen ? (
+          <div id={caseStudyPanelId} className="pt-3 border-t border-border space-y-3">
             <div>
               <p className="text-[11px] tracking-[0.2em] uppercase text-muted mb-1">Problem</p>
               <p className="text-sm text-foreground leading-relaxed">{project.caseStudy.problem}</p>
@@ -96,7 +125,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               <p className="text-sm text-foreground leading-relaxed">{project.caseStudy.outcome}</p>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </article>
   );

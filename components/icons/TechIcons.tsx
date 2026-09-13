@@ -24,6 +24,7 @@ const brandLogoSlugs: Partial<Record<SkillIconKey, string>> = {
   github: 'github',
   postman: 'postman',
   vercel: 'vercel',
+  expo: 'expo',
 };
 
 const localLogos: Partial<Record<SkillIconKey, string>> = {
@@ -36,13 +37,14 @@ const localLogos: Partial<Record<SkillIconKey, string>> = {
 function BrandLogo({ icon, name }: { icon: SkillIconKey; name: string }) {
   const slug = brandLogoSlugs[icon];
   if (!slug) return null;
-  const variant = icon === 'github' ? 'light' : 'default';
+  // Soft-light treatment for dark-on-dark brand marks (no background plate).
+  const softLogo = icon === 'github' || icon === 'expo';
 
   return (
     <img
-      src={`https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/${slug}/${variant}.svg`}
+      src={`https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/${slug}/default.svg`}
       alt=""
-      className="h-4 w-4 shrink-0 object-contain"
+      className={`h-4 w-4 shrink-0 object-contain${softLogo ? ' tech-logo-soft' : ''}`}
       loading="lazy"
       decoding="async"
       aria-hidden="true"
