@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Angelo Reychie Alejo — Full Stack Developer",
+  title: "Angelo Reychie Alejo — Full-Stack Developer",
   description:
-    "Portfolio of Angelo Reychie Alejo — full stack developer building scalable systems and production-ready web applications.",
+    "Portfolio of Angelo Reychie Alejo — full-stack developer building scalable systems and production-ready web applications.",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: ["/favicon.svg"],

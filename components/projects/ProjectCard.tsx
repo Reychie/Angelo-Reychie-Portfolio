@@ -20,7 +20,6 @@ const technologyIcons: Record<string, SkillIconKey> = {
   PHP: 'php',
   MySQL: 'mysql',
   JavaScript: 'javascript',
-  Expo: 'expo',
   'React Native': 'reactnative',
 };
 

@@ -30,7 +30,7 @@ export default function AboutSection({ onNavigate }: AboutSectionProps) {
             <div className="space-y-5">
               <div className="space-card rounded-2xl p-6 md:p-8 space-y-5 text-base md:text-lg leading-relaxed text-muted text-left">
                 <p>
-                  I&apos;m Angelo Reychie Alejo, a Full Stack Developer who enjoys building applications and figuring out how different parts of a system work together. I like taking a requirement or problem, understanding what needs to be done, and turning it into a working feature.
+                  I&apos;m Angelo Reychie Alejo, a Full-Stack Developer who enjoys building applications and figuring out how different parts of a system work together. I like taking a requirement or problem, understanding what needs to be done, and turning it into a working feature.
                 </p>
                 <p>
                   Most of my experience has involved building new features, fixing issues, improving existing systems, and working with other developers on real projects. I&apos;m comfortable learning things as I go, especially when a project requires something I haven&apos;t worked with before.

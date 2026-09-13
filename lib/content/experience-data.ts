@@ -14,7 +14,7 @@ export const experiences: Experience[] = [
   {
     id: 'compassionate-home-health',
     company: 'Compassionate Home Health Services',
-    position: 'Full Stack Developer',
+    position: 'Full-Stack Developer',
     period: 'Dec 2025 – Sep 2026',
     location: 'Pontiac, Michigan, USA',
     status: 'Recent role',

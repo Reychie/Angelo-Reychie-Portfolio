@@ -21,7 +21,7 @@ export const projects: Project[] = [
     title: 'NE-Attend',
     description:
       'Automated attendance monitoring for students and instructors specifically designed for Google Meet.',
-    role: 'Full Stack Developer',
+    role: 'Full-Stack Developer',
     technologies: ['React', 'Vite', 'Node.js', 'MongoDB', 'Socket.IO'],
     image: '/projects/ne-attend.png',
     imageAlt: 'NE-Attend Google Meet attendance login screen',
@@ -41,8 +41,8 @@ export const projects: Project[] = [
     title: 'USEAPP',
     description:
       'A real-time employee attendance monitoring and payroll processing system with a companion mobile app.',
-    role: 'Full Stack Developer',
-    technologies: ['PHP', 'MySQL', 'JavaScript', 'Expo', 'React Native'],
+    role: 'Full-Stack Developer',
+    technologies: ['PHP', 'MySQL', 'React Native', 'JavaScript'],
     image: '/projects/useapp.png',
     imageAlt: 'USEAPP employee attendance login screen',
     githubUrl: 'https://github.com/Reychie/USEAPP',

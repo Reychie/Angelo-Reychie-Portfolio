@@ -26,7 +26,7 @@ export default function ProfileFrame() {
         className="profile-frame"
         tabIndex={0}
         role="img"
-        aria-label="Portrait of Angelo Reychie Alejo, full stack developer"
+        aria-label="Portrait of Angelo Reychie Alejo, full-stack developer"
         onPointerMove={handlePointerMove}
         onPointerLeave={resetTilt}
         onFocus={() => setIsFocused(true)}
