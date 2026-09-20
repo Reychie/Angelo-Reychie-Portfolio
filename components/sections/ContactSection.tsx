@@ -1,59 +1,36 @@
+'use client';
+
+import { Atmosphere } from '@/components/animations/Atmosphere';
+import { Reveal } from '@/components/animations/Reveal';
+import { ArrowUpRight, GitHubIcon, LinkedInIcon } from '@/components/icons/InterfaceIcons';
+import { SectionLabel } from '@/components/ui/SectionLabel';
+import { TextLink } from '@/components/ui/TextLink';
 import { site } from '@/lib/content/site';
-import Button from '@/components/ui/Button';
-import SocialButton from '@/components/ui/SocialButton';
 
-const gmailComposeUrl =
-  'https://mail.google.com/mail/?view=cm&fs=1' +
-  `&to=${encodeURIComponent(site.email)}` +
-  `&su=${encodeURIComponent('Portfolio Inquiry')}`;
-
-export default function ContactSection() {
+export function ContactSection() {
   return (
-    <section className="relative min-h-full px-6 md:px-10 lg:px-16 py-12 md:py-16">
-      <div className="contact-layout max-w-3xl mx-auto space-y-8 text-center">
-        <div className="space-y-3">
-          <p className="text-xs tracking-[0.28em] uppercase text-violet">Contact</p>
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
-            Open to new opportunities
-          </h2>
-          <p className="text-base text-muted leading-relaxed">
-            I’m available for professional opportunities, projects, collaborations, and other development work.
-          </p>
-        </div>
-
-        <div className="contact-shell space-card">
-          <div className="contact-shell-glow" aria-hidden="true" />
-          <div className="contact-shell-orbit" aria-hidden="true" />
-
-          <div className="contact-status">
-            <span className="contact-status-dot" aria-hidden="true" />
-            <span>Available for new roles</span>
-          </div>
-
-          <div className="contact-card-grid">
-            <div className="contact-info-card">
-              <p className="text-[11px] tracking-[0.2em] uppercase text-muted">Email</p>
-              <p className="contact-info-value break-all">{site.email}</p>
-            </div>
-
-            <div className="contact-info-card">
-              <p className="text-[11px] tracking-[0.2em] uppercase text-muted">Location</p>
-              <p className="contact-info-value">{site.location}</p>
-              <span className="contact-info-hint">Remote-friendly</span>
-            </div>
-          </div>
-
+    <section id="contact" className="contact panel section-pad">
+      <Atmosphere src="/images/space/lunar-contact.png" className="contact-atmosphere" position="78% 62%" strength={38} />
+      <div className="contact-scrim" aria-hidden="true" />
+      <div className="page-grid contact-layout">
+        <Reveal className="contact-copy">
+          <SectionLabel number="06" label="Contact" />
+          <h2>Open to new<br />opportunities</h2>
+          <p>I’m available for professional opportunities, projects, collaborations, and other development work.</p>
+          <div className="contact-availability"><span aria-hidden="true" /><strong>Available for new roles</strong><i>Professional · Project · Collaboration</i></div>
           <div className="contact-actions">
-            <Button href={gmailComposeUrl} external aria-label="Email Me via Gmail">
-              Email Me
-            </Button>
-            <SocialButton platform="github" labeled />
-            <SocialButton platform="linkedin" labeled />
-            <Button href={site.resumePath} external variant="ghost">
-              View Resume
-            </Button>
+            <TextLink href={`mailto:${site.email}`} primary>Send an email</TextLink>
+            <a className="linkedin-link" href={site.social.linkedin} target="_blank" rel="noreferrer">
+              <LinkedInIcon />Connect on LinkedIn<ArrowUpRight />
+            </a>
           </div>
-        </div>
+        </Reveal>
+        <div className="contact-aside">Good<br />ideas<br />travel<br />far<i /></div>
+        <footer className="site-footer">
+          <span>© {new Date().getFullYear()} {site.name}</span>
+          <div><a href={site.social.github} target="_blank" rel="noreferrer" aria-label="GitHub"><GitHubIcon /></a><a href={site.social.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn"><LinkedInIcon /></a></div>
+          <span>{site.location}</span>
+        </footer>
       </div>
     </section>
   );

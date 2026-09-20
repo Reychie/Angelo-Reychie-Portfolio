@@ -1,66 +1,63 @@
 'use client';
 
-import type { Section } from '@/lib/navigation';
-import { site } from '@/lib/content/site';
-import Button from '@/components/ui/Button';
-import ProfileFrame from '@/components/hero/ProfileFrame';
-import { ArrowUpRightIcon } from '@/components/icons/InterfaceIcons';
-import { GitHubIcon, LinkedInIcon } from '@/components/icons/SocialIcons';
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
+import type { PointerEvent as ReactPointerEvent } from 'react';
 
-const socialLinks = [
-  { href: site.social.github, label: 'GitHub', icon: GitHubIcon },
-  { href: site.social.linkedin, label: 'LinkedIn', icon: LinkedInIcon },
-];
+import { ArrowDown } from '@/components/icons/InterfaceIcons';
+import OrbitalField from '@/components/space/OrbitalField';
+import { CosmicPlate } from '@/components/ui/CosmicPlate';
+import { TextLink } from '@/components/ui/TextLink';
+import { portfolioEase } from '@/lib/motion';
 
-function SocialLink({ href, label, icon: Icon }: { href: string; label: string; icon: typeof GitHubIcon }) {
+export function HeroSection() {
+  const reduced = useReducedMotion();
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const smoothX = useSpring(x, { stiffness: 45, damping: 22, mass: 0.8 });
+  const smoothY = useSpring(y, { stiffness: 45, damping: 22, mass: 0.8 });
+  const plateX = useTransform(smoothX, (value) => value * 1.15);
+  const plateY = useTransform(smoothY, (value) => value * 1.1);
+  const sheenX = useTransform(smoothX, (value) => value * -0.55);
+  const sheenY = useTransform(smoothY, (value) => value * -0.4);
+
+  const onPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    if (reduced || event.pointerType === 'touch') return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    x.set(((event.clientX - rect.left) / rect.width - 0.5) * -18);
+    y.set(((event.clientY - rect.top) / rect.height - 0.5) * -12);
+  };
+
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="hero-social-link" aria-label={label}>
-      <Icon />
-      <span>{label}</span>
-      <ArrowUpRightIcon className="w-3.5 h-3.5" />
-    </a>
-  );
-} 
-
-interface HeroSectionProps {
-  onNavigate?: (section: Section) => void;
-}
-
-export default function HeroSection({ onNavigate }: HeroSectionProps) {
-  return (
-    <section className="relative min-h-full flex items-center px-6 md:px-10 lg:px-16 py-12 md:py-16">
-      <div className="w-full max-w-[82rem] mx-auto hero-grid">
-        <div className="max-w-xl lg:max-w-2xl space-y-7">
-
-          <p className="hero-badge">
-            <span className="hero-badge-dot" />
-            Developer in Orbit
-          </p>
-
-          <div className="space-y-3">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.05]">
-              {site.name}
-            </h1>
-            <p className="text-lg md:text-xl">
-              <span className="text-gradient">{site.role}</span>
-            </p>
-          </div>
-
-          <p className="text-base md:text-lg leading-relaxed text-muted max-w-lg">{site.tagline}</p>
-
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <Button onClick={() => onNavigate?.('projects')}>View Projects</Button>
-            <Button href={site.resumePath} external variant="ghost">
-              View Resume
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            {socialLinks.map((link) => <SocialLink key={link.label} {...link} />)}
-          </div>
-        </div>
-        <ProfileFrame />
+    <section id="home" className="hero panel" onPointerMove={onPointerMove} onPointerLeave={() => { x.set(0); y.set(0); }}>
+      <motion.div className="hero-art" style={{ x: plateX, y: plateY }} aria-hidden="true">
+        <CosmicPlate src="/images/space/black-hole-hero.png" alt="" priority className="hero-art__plate" position="58% center" />
+        <motion.div className="accretion-disk" style={{ x: sheenX, y: sheenY }} />
+        <motion.div className="accretion-sheen" style={{ x: sheenX, y: sheenY }} />
+        <div className="photon-ring" />
+        <div className="star-drift star-drift--one" />
+        <div className="star-drift star-drift--two" />
+        <OrbitalField />
+      </motion.div>
+      <div className="hero-pointer-glow" aria-hidden="true" />
+      <div className="hero-scrim" aria-hidden="true" />
+      <motion.div className="hero-copy" initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.11, delayChildren: 0.16 } } }}>
+        <motion.p className="hero-intro" variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: portfolioEase } } }}>Hello, I&apos;m</motion.p>
+        <motion.h1 variants={{ hidden: { opacity: 0, y: 28, clipPath: 'inset(0 0 100% 0)' }, show: { opacity: 1, y: 0, clipPath: 'inset(0 0 0% 0)', transition: { duration: 1, ease: portfolioEase } } }}>Angelo<br />Reychie <span className="hero-surname">Alejo</span></motion.h1>
+        <motion.p className="hero-role" variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.75, ease: portfolioEase } } }}>Full-Stack Developer</motion.p>
+        <motion.p className="hero-description" variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.75, ease: portfolioEase } } }}>I build real-world applications across frontend, backend, data, and AI-enabled workflows that turn complex requirements into reliable products people can use.</motion.p>
+        <motion.div className="hero-actions" variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.75, ease: portfolioEase } } }}>
+          <TextLink href="#projects" primary>View my work</TextLink>
+          <a className="scroll-cue" href="#about"><span><ArrowDown /></span>Scroll to explore</a>
+        </motion.div>
+      </motion.div>
+      <div className="hero-status"><span /><p>Open to new <br />opportunities</p></div>
+      <div className="hero-stats" aria-label="Portfolio summary">
+        <div><strong>02</strong><span>Selected projects</span></div>
+        <div><strong>Full</strong><span>Stack coverage</span></div>
+        <div><strong>2026</strong><span>Latest role</span></div>
       </div>
+      <div className="hero-aside">Ideas<br />orbit<br />into<br />reality</div>
+      <div className="hero-note">Building practical systems<br />with curiosity and care.</div>
     </section>
   );
 }

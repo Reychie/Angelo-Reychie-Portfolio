@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+/test-results/
+
+# local Impeccable runtime, metadata, and visual-review artifacts
+/.impeccable/
 
 # next.js
 /.next/
@@ -39,3 +43,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+DESIGN.md
+scripts/performance-review.mjs
+scripts/visual-review.mjs
+PRODUCT.md

@@ -1,37 +1,87 @@
 'use client';
 
-import { useState } from 'react';
-import { projects } from '@/lib/content/projects-data';
-import ProjectCard from '@/components/projects/ProjectCard';
+import { motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-export default function ProjectsSection() {
-  const [openCaseStudyId, setOpenCaseStudyId] = useState<string | null>(null);
+import { Atmosphere } from '@/components/animations/Atmosphere';
+import { Reveal } from '@/components/animations/Reveal';
+import { ChevronLeft, ChevronRight, CrossMark } from '@/components/icons/InterfaceIcons';
+import { ProjectCard, type ProjectMotionState } from '@/components/projects/ProjectCard';
+import { SectionLabel } from '@/components/ui/SectionLabel';
+import { TextLink } from '@/components/ui/TextLink';
+import { projects } from '@/lib/content/projects-data';
+import { site } from '@/lib/content/site';
+
+export function ProjectsSection() {
+  const reducedMotion = useReducedMotion();
+  const initialIndex = Math.max(0, projects.findIndex((project) => project.id === 'useapp'));
+  const [activeIndex, setActiveIndex] = useState(initialIndex);
+  const [motionState, setMotionState] = useState<ProjectMotionState>('idle');
+  const [promotingId, setPromotingId] = useState<string | null>(null);
+  const timers = useRef<number[]>([]);
+  const orderedProjects = useMemo(
+    () => projects.map((_, offset) => projects[(activeIndex + offset) % projects.length]),
+    [activeIndex],
+  );
+
+  useEffect(() => () => timers.current.forEach((timer) => window.clearTimeout(timer)), []);
+
+  const featureProject = (nextIndex: number) => {
+    if (nextIndex === activeIndex || motionState !== 'idle') return;
+    const target = projects[nextIndex];
+    setPromotingId(target.id);
+    if (reducedMotion) {
+      setActiveIndex(nextIndex);
+      setPromotingId(null);
+      return;
+    }
+    setMotionState('departing');
+    timers.current.push(window.setTimeout(() => {
+      setActiveIndex(nextIndex);
+      setMotionState('settling');
+    }, 240));
+    timers.current.push(window.setTimeout(() => {
+      setMotionState('idle');
+      setPromotingId(null);
+    }, 860));
+  };
+
+  const move = (nextDirection: number) => {
+    featureProject((activeIndex + nextDirection + projects.length) % projects.length);
+  };
 
   return (
-    <section className="relative min-h-full px-6 md:px-10 lg:px-16 py-12 md:py-16">
-      <div className="max-w-6xl mx-auto space-y-10">
-        <div className="max-w-2xl space-y-3">
-          <p className="text-xs tracking-[0.28em] uppercase text-violet">Projects</p>
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
-            Projects I’ve Built
-          </h2>
-          <p className="text-base text-muted leading-relaxed">
-            A selection of systems and applications I’ve developed across professional, academic, and personal projects.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6 items-start">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              caseStudyOpen={openCaseStudyId === project.id}
-              onCaseStudyToggle={() => {
-                setOpenCaseStudyId((current) => (current === project.id ? null : project.id));
-              }}
-            />
-          ))}
-        </div>
+    <section id="projects" className="projects panel section-pad">
+      <Atmosphere src="/images/space/lunar-contact.png" className="projects-atmosphere" position="68% 54%" strength={34} />
+      <div className="section-coordinate section-coordinate--projects" aria-hidden="true">PROJECT ARRAY<br />02 VERIFIED SYSTEMS</div>
+      <div className="page-grid project-layout">
+        <Reveal className="projects-intro">
+          <SectionLabel number="03" label="Projects" />
+          <h2>Projects I’ve<br />Built</h2>
+          <p>A selection of systems and applications I’ve developed across professional, academic, and personal projects.</p>
+          <TextLink href={site.social.github} external>View GitHub</TextLink>
+        </Reveal>
+        <Reveal className="project-stage" delay={0.08} kind="visual">
+          <div className="project-controls" aria-label="Project navigation">
+            <motion.button type="button" onClick={() => move(-1)} aria-label="Show previous project" whileTap={{ scale: 0.9 }} disabled={motionState !== 'idle'}><ChevronLeft /></motion.button>
+            <motion.button type="button" onClick={() => move(1)} aria-label="Show next project" whileTap={{ scale: 0.9 }} disabled={motionState !== 'idle'}><ChevronRight /></motion.button>
+          </div>
+          <div className="sr-only" aria-live="polite">Showing {projects[activeIndex].title} as the featured project.</div>
+          <motion.div className="projects-cards" layout>
+            {orderedProjects.map((project, index) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                featured={index === 0}
+                index={index}
+                motionState={motionState}
+                promoting={promotingId === project.id}
+                onSelect={() => featureProject(projects.findIndex((item) => item.id === project.id))}
+              />
+            ))}
+          </motion.div>
+        </Reveal>
+        <CrossMark className="project-cross" />
       </div>
     </section>
   );

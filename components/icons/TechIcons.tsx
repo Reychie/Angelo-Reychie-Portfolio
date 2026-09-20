@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- Remote SVG technology marks and tiny local logos are non-content icons. */
 import type { ReactNode } from 'react';
 import type { CategoryIconKey, SkillIconKey } from '@/lib/content/skills-data';
 
@@ -13,8 +14,8 @@ const brandLogoSlugs: Partial<Record<SkillIconKey, string>> = {
   css: 'css3',
   tailwind: 'tailwindcss',
   nodejs: 'nodedotjs',
-  express: 'nodejs',
-  socketio: 'socket-io',
+  express: 'express',
+  socketio: 'socketdotio',
   postgresql: 'postgresql',
   mysql: 'mysql',
   supabase: 'supabase',
@@ -38,17 +39,33 @@ function BrandLogo({ icon, name }: { icon: SkillIconKey; name: string }) {
   const slug = brandLogoSlugs[icon];
   if (!slug) return null;
   // Soft-light treatment for dark-on-dark brand marks (no background plate).
-  const softLogo = icon === 'github' || icon === 'expo';
+  const softLogo = icon === 'github' || icon === 'expo' || icon === 'vercel' || icon === 'nextjs' || icon === 'express' || icon === 'socketio';
+  const nextMark =
+    'data:image/svg+xml,' +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#e8eef2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.85 0 3.58-.5 5.07-1.38L8.3 8.3v7.4h1.7V10.6l6.66 9.42A9.96 9.96 0 0 0 22 12c0-5.52-4.48-10-10-10Zm4.2 14.1-1.45-2.05V7.9h1.7v8.2h-.25Z"/></svg>',
+    );
+  const color = icon === 'mysql' ? '3f9cc5' : softLogo && icon !== 'nextjs' ? 'e8eef2' : undefined;
+  const src = icon === 'nextjs' ? nextMark : color ? `https://cdn.simpleicons.org/${slug}/${color}` : `https://cdn.simpleicons.org/${slug}`;
 
   return (
     <img
-      src={`https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/${slug}/default.svg`}
+      src={src}
       alt=""
-      className={`h-4 w-4 shrink-0 object-contain${softLogo ? ' tech-logo-soft' : ''}`}
+      className={`h-4 w-4 shrink-0 object-contain${softLogo ? ' tech-logo-soft' : ''}${icon === 'mysql' ? ' tech-logo-mysql' : ''}`}
       loading="lazy"
       decoding="async"
       aria-hidden="true"
       title={`${name} logo`}
+      onError={(event) => {
+        const target = event.currentTarget;
+        if (target.dataset.fallback === '1') {
+          target.style.display = 'none';
+          return;
+        }
+        target.dataset.fallback = '1';
+        target.src = `https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/${slug}.svg`;
+      }}
     />
   );
 }

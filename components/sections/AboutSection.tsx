@@ -1,63 +1,45 @@
 'use client';
 
-import type { Section } from '@/lib/navigation';
-import { site } from '@/lib/content/site';
-import Button from '@/components/ui/Button';
-import AboutProfileFrame from '@/components/about/AboutProfileFrame';
+import { Atmosphere } from '@/components/animations/Atmosphere';
+import { Reveal } from '@/components/animations/Reveal';
+import { CrossMark, TraitIcon } from '@/components/icons/InterfaceIcons';
+import SectionOrbitField from '@/components/space/SectionOrbitField';
+import { CosmicPlate } from '@/components/ui/CosmicPlate';
+import { SectionLabel } from '@/components/ui/SectionLabel';
+import { TextLink } from '@/components/ui/TextLink';
+import { traits } from '@/lib/content/about-data';
 
-interface AboutSectionProps {
-  onNavigate?: (section: Section) => void;
-}
-
-const focusAreas = [
-  { label: 'Focus', value: 'Full stack applications & production systems' },
-  { label: 'Based in', value: site.location },
-  { label: 'Beyond code', value: 'Astronomy & space exploration' },
-];
-
-export default function AboutSection({ onNavigate }: AboutSectionProps) {
+export function AboutSection() {
   return (
-    <section className="relative min-h-full px-6 md:px-10 lg:px-16 py-12 md:py-16">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div className="space-y-3 max-w-2xl">
-          <p className="text-xs tracking-[0.28em] uppercase text-violet">About me</p>
+    <section id="about" className="about panel section-pad">
+      <Atmosphere src="/images/space/earth-horizon.png" className="about-atmosphere" position="68% 52%" strength={28} />
+      <SectionOrbitField className="about-orbit-field" />
+      <div className="section-coordinate section-coordinate--about" aria-hidden="true">ORBIT / 02<br />37.7749° N</div>
+      <div className="about-grid page-grid">
+        <Reveal className="about-copy">
+          <SectionLabel number="02" label="About" />
+          <h2>More Than<br />Just Code</h2>
+          <p>I&apos;m Angelo Reychie Alejo, a full-stack developer who likes understanding how every part of a system connects. I turn requirements into useful, maintainable features across interfaces, APIs, databases, and intelligent workflows.</p>
+          <TextLink href="#projects">Get to know my work</TextLink>
+        </Reveal>
+        <Reveal className="about-visual" delay={0.08} kind="visual">
+          <CosmicPlate src="/images/space/earth-horizon.png" alt="Earth at night seen from orbit" sizes="(max-width: 920px) calc(100vw - 48px), 58vw" position="58% center" />
+          <div className="orbit-callout"><span />Different perspective<br />Same curiosity</div>
+          <span className="orbit-marker" aria-hidden="true" />
+        </Reveal>
+        <div className="trait-grid">
+          {traits.map((trait, index) => (
+            <Reveal key={trait.title} className="trait-shell" delay={index * 0.055} kind="card">
+              <article className="trait">
+                <div className="trait__telemetry"><span>{String(index + 1).padStart(2, '0')}</span><i /></div>
+                <div className="trait__icon"><TraitIcon kind={trait.icon} /><span aria-hidden="true" /></div>
+                <div><h3>{trait.title}</h3><p>{trait.text}</p></div>
+                <span className="trait__corner" aria-hidden="true" />
+              </article>
+            </Reveal>
+          ))}
         </div>
-
-        <div className="about-composition">
-          <AboutProfileFrame />
-
-          <div className="about-main">
-            <div className="space-y-5">
-              <div className="space-card rounded-2xl p-6 md:p-8 space-y-5 text-base md:text-lg leading-relaxed text-muted text-left">
-                <p>
-                  I&apos;m Angelo Reychie Alejo, a Full-Stack Developer who enjoys building applications and figuring out how different parts of a system work together. I like taking a requirement or problem, understanding what needs to be done, and turning it into a working feature.
-                </p>
-                <p>
-                  Most of my experience has involved building new features, fixing issues, improving existing systems, and working with other developers on real projects. I&apos;m comfortable learning things as I go, especially when a project requires something I haven&apos;t worked with before.
-                </p>
-                <p>
-                  Outside of coding, I spend a lot of time reading and watching videos about astronomy, space exploration, and the universe. Space has always been something I&apos;m interested in, and it&apos;s usually what I end up reading about when I&apos;m away from development.
-                </p>
-              </div>
-
-              <ul className="about-signal-grid" aria-label="About highlights">
-                {focusAreas.map((item) => (
-                  <li key={item.label} className="about-signal-card space-card">
-                    <p className="text-[11px] tracking-[0.2em] uppercase text-muted">{item.label}</p>
-                    <p className="mt-2 text-sm text-foreground leading-relaxed">{item.value}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="about-actions">
-              <Button onClick={() => onNavigate?.('projects')}>View Projects</Button>
-              <Button onClick={() => onNavigate?.('skills')} variant="ghost">
-                View Skills
-              </Button>
-            </div>
-          </div>
-        </div>
+        <Reveal className="about-quote" kind="horizontal"><CrossMark /><blockquote>“The best systems feel clear on the surface because someone cared about the structure beneath.”</blockquote><i /></Reveal>
       </div>
     </section>
   );

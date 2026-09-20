@@ -1,24 +1,44 @@
-import { skillCategories } from '@/lib/content/skills-data';
-import SkillCategory from '@/components/skills/SkillCategory';
+'use client';
 
-export default function SkillsSection() {
+import { useMemo, type CSSProperties } from 'react';
+
+import { Atmosphere } from '@/components/animations/Atmosphere';
+import { Reveal } from '@/components/animations/Reveal';
+import { SkillIcon } from '@/components/icons/TechIcons';
+import { SectionLabel } from '@/components/ui/SectionLabel';
+import { TextLink } from '@/components/ui/TextLink';
+import { skillCategories, type SkillIconKey } from '@/lib/content/skills-data';
+import { preferredSkillGroups } from '@/lib/content/skills-view-data';
+import { site } from '@/lib/content/site';
+
+export function SkillsSection() {
+  const lookup = useMemo(() => new Map(skillCategories.flatMap((category) => category.skills).map((skill) => [skill.name, skill])), []);
   return (
-    <section className="relative min-h-full px-6 md:px-10 lg:px-16 py-12 md:py-16">
-      <div className="max-w-6xl mx-auto space-y-10">
-        <div className="max-w-2xl space-y-3">
-          <p className="text-xs tracking-[0.28em] uppercase text-violet">Skills</p>
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
-            Technical Skills
-          </h2>
-          <p className="text-base text-muted leading-relaxed">
-            Languages, frameworks, platforms, and tools I use to build and maintain software applications.
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
-          {skillCategories.map((category) => (
-            <SkillCategory key={category.id} category={category} />
-          ))}
+    <section id="skills" className="skills panel section-pad">
+      <Atmosphere src="/images/space/lunar-surface.jpg" className="skills-atmosphere" position="72% 74%" strength={24} />
+      <div className="section-coordinate section-coordinate--skills" aria-hidden="true">CAPABILITY DECK<br />SYSTEMS ONLINE</div>
+      <div className="page-grid skills-layout">
+        <Reveal className="skills-intro">
+          <SectionLabel number="05" label="Skills" />
+          <h2>Tools &<br />Technologies</h2>
+          <p>The stack I use to design, build, connect, and ship modern applications.</p>
+          <TextLink href={site.social.github} external>View my setup</TextLink>
+        </Reveal>
+        <div className="skills-console">
+          <div className="skills-console__head"><span><i /> Capability matrix</span><span>04 sectors / 20 tools</span></div>
+          <div className="skill-groups">
+            {preferredSkillGroups.map((group, groupIndex) => (
+              <Reveal key={group.title} className="skill-group" delay={groupIndex * 0.06} kind="card">
+                <div className="skill-group__head"><span>{String(groupIndex + 1).padStart(2, '0')}</span><h3>{group.title}</h3><i /></div>
+                <ul>{group.names.map((name, skillIndex) => {
+                  const skill = lookup.get(name);
+                  if (!skill) return null;
+                  return <li key={name} style={{ '--skill-order': skillIndex } as CSSProperties}><span><SkillIcon name={name} icon={skill.icon as SkillIconKey} /></span><small>{name}</small></li>;
+                })}</ul>
+              </Reveal>
+            ))}
+          </div>
+          <div className="skills-console__foot"><span>Frontend to deployment</span><i /><span>Built for useful products</span></div>
         </div>
       </div>
     </section>

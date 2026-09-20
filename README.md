@@ -9,7 +9,8 @@ Personal portfolio site for **Angelo Reychie Alejo** — Full-Stack Developer.
 - TypeScript
 - Tailwind CSS
 - Framer Motion
-- React Three Fiber
+- Three.js
+- Playwright + axe-core
 
 ## Scripts
 
@@ -26,21 +27,16 @@ npm run lint
 ```text
 app/                 # Next.js routes and global styles
 components/
-  layout/            # Header, Footer, cursor, transitions
-  sections/          # Page sections
-  hero/ about/ experience/ projects/ skills/
-  space/             # Background / Three.js scene
-  ui/                # Shared UI primitives
-  icons/             # Icon components
+  portfolio/         # Composed single-page experience and interactions
+  space/             # Three.js orbital field
+  icons/             # Technology logo components
 lib/
   content/           # Site copy and domain data
-  navigation.ts      # Section routing helpers
-  motion.ts          # Shared motion tokens
 public/
-  images/            # Profile, icons, legacy assets
-  projects/          # Project screenshots
-  documents/         # Resume PDF
-docs/analysis/       # Development notes and analysis
+  images/            # Profile, icons, and cinematic space assets
+  projects/          # Verified project screenshots
+tests/               # Browser, accessibility, and interaction coverage
+scripts/             # Visual and performance review helpers
 ```
 
 ## Deploy
