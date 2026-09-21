@@ -1,6 +1,7 @@
 export const preferredSkillGroups = [
-  { title: 'Frontend', names: ['React', 'Next.js', 'TypeScript', 'JavaScript', 'Tailwind CSS', 'Vite'] },
-  { title: 'Backend', names: ['Node.js', 'Express.js', 'Python', 'PHP', 'Socket.IO', 'Java'] },
-  { title: 'Database', names: ['PostgreSQL', 'MySQL', 'Supabase', 'MongoDB'] },
-  { title: 'Tools & Cloud', names: ['Git', 'GitHub', 'Vercel', 'VS Code', 'Postman', 'React Native'] },
+  { title: 'Languages', names: ['JavaScript', 'TypeScript', 'Python', 'PHP', 'Java'] },
+  { title: 'Frontend & Mobile', names: ['React', 'Next.js', 'React Native', 'Tailwind CSS', 'Vite'] },
+  { title: 'Backend & APIs', names: ['Node.js', 'Express.js', 'Socket.IO'] },
+  { title: 'Databases & Backend Services', names: ['PostgreSQL', 'MySQL', 'MongoDB', 'Supabase'] },
+  { title: 'Development & Deployment', names: ['Git', 'GitHub', 'VS Code', 'Postman', 'Vercel'] },
 ] as const;

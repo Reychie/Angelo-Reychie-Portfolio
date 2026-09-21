@@ -116,6 +116,35 @@ test('keeps the Hero J and Skills S unclipped and replays scroll entrances', asy
   await expect.poll(() => skillsIntro.evaluate((node) => Number(getComputedStyle(node).opacity))).toBeGreaterThan(0.99);
 });
 
+test('renders the exact five Skills categories with 22 unique technologies', async ({ page }) => {
+  const expectedGroups = [
+    { title: 'Languages', technologies: ['JavaScript', 'TypeScript', 'Python', 'PHP', 'Java'] },
+    { title: 'Frontend & Mobile', technologies: ['React', 'Next.js', 'React Native', 'Tailwind CSS', 'Vite'] },
+    { title: 'Backend & APIs', technologies: ['Node.js', 'Express.js', 'Socket.IO'] },
+    { title: 'Databases & Backend Services', technologies: ['PostgreSQL', 'MySQL', 'MongoDB', 'Supabase'] },
+    { title: 'Development & Deployment', technologies: ['Git', 'GitHub', 'VS Code', 'Postman', 'Vercel'] },
+  ];
+
+  await page.setViewportSize({ width: 1536, height: 960 });
+  await page.goto('/');
+  await page.locator('#skills').scrollIntoViewIfNeeded();
+  await expect(page.locator('.skills-console__head span').first()).toHaveText('Technical skills');
+  await expect(page.locator('.skills-console__head span').last()).toHaveText('05 categories / 22 technologies');
+
+  const groups = page.locator('.skill-group');
+  await expect(groups).toHaveCount(5);
+  for (const [index, expected] of expectedGroups.entries()) {
+    const group = groups.nth(index);
+    await expect(group.locator('.skill-group__head > span')).toHaveText(String(index + 1).padStart(2, '0'));
+    await expect(group.getByRole('heading', { level: 3 })).toHaveText(expected.title);
+    expect(await group.locator('li small').allTextContents()).toEqual(expected.technologies);
+  }
+
+  const technologies = await groups.locator('li small').allTextContents();
+  expect(technologies).toHaveLength(22);
+  expect(new Set(technologies).size).toBe(22);
+});
+
 test('mounts both Three.js fields and keeps the verified experience visible with reduced motion', async ({ page }) => {
   await page.setViewportSize({ width: 1536, height: 960 });
   await page.goto('/');

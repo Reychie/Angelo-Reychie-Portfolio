@@ -29,7 +29,7 @@ export function SkillsSection() {
         </ScrollMotion>
         <ScrollMotion className="skills-console-motion" delay={0.08} kind="console">
           <div className="skills-console">
-            <div className="skills-console__head"><span><i /> Capability matrix</span><span>04 sectors / 20 tools</span></div>
+            <div className="skills-console__head"><span><i /> Technical skills</span><span>05 categories / 22 technologies</span></div>
             <div className="skill-groups">
               {preferredSkillGroups.map((group, groupIndex) => (
                 <ScrollMotion key={group.title} className="skill-group" delay={groupIndex * 0.055} kind="checkpoint" direction={groupIndex % 2 ? 'right' : 'left'} staggerChildren={0.045}>
