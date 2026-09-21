@@ -1,23 +1,43 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import { useEffect, useRef, useState } from 'react';
 
 import { Atmosphere } from '@/components/animations/Atmosphere';
 import { CampaignScene } from '@/components/animations/OrbitalCampaign';
 import { campaignHeadingVariants, scrollMotionItemVariants, ScrollMotion } from '@/components/animations/ScrollMotion';
 import { CrossMark, TraitIcon } from '@/components/icons/InterfaceIcons';
-import SectionOrbitField from '@/components/space/SectionOrbitField';
 import { CosmicPlate } from '@/components/ui/CosmicPlate';
 import { SectionLabel } from '@/components/ui/SectionLabel';
 import { TextLink } from '@/components/ui/TextLink';
 import { traits } from '@/lib/content/about-data';
 
+const SectionOrbitField = dynamic(() => import('@/components/space/SectionOrbitField'), { ssr: false });
+
 export function AboutSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [webglReady, setWebglReady] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || webglReady) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      setWebglReady(true);
+      observer.disconnect();
+    }, { threshold: 0.01 });
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [webglReady]);
+
   return (
-    <section id="about" className="about panel section-pad">
+    <section ref={sectionRef} id="about" className="about panel section-pad">
       <CampaignScene variant="orbit" />
       <Atmosphere src="/images/space/earth-horizon.png" className="about-atmosphere" position="68% 52%" strength={28} />
-      <SectionOrbitField className="about-orbit-field" />
+      {webglReady ? <SectionOrbitField className="about-orbit-field" /> : null}
       <div className="section-coordinate section-coordinate--about" aria-hidden="true">ORBIT / 02<br />37.7749° N</div>
       <div className="about-grid page-grid">
         <ScrollMotion className="about-copy" kind="group" staggerChildren={0.1}>

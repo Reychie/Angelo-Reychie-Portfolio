@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useMemo, type CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 
 import { Atmosphere } from '@/components/animations/Atmosphere';
 import { CampaignScene } from '@/components/animations/OrbitalCampaign';
@@ -13,8 +13,9 @@ import { skillCategories, type SkillIconKey } from '@/lib/content/skills-data';
 import { preferredSkillGroups } from '@/lib/content/skills-view-data';
 import { site } from '@/lib/content/site';
 
+const skillLookup = new Map(skillCategories.flatMap((category) => category.skills).map((skill) => [skill.name, skill]));
+
 export function SkillsSection() {
-  const lookup = useMemo(() => new Map(skillCategories.flatMap((category) => category.skills).map((skill) => [skill.name, skill])), []);
   return (
     <section id="skills" className="skills panel section-pad">
       <CampaignScene variant="systems" />
@@ -35,7 +36,7 @@ export function SkillsSection() {
                 <ScrollMotion key={group.title} className="skill-group" delay={groupIndex * 0.055} kind="checkpoint" direction={groupIndex % 2 ? 'right' : 'left'} staggerChildren={0.045}>
                   <div className="skill-group__head"><span>{String(groupIndex + 1).padStart(2, '0')}</span><h3>{group.title}</h3><i /></div>
                   <ul>{group.names.map((name, skillIndex) => {
-                    const skill = lookup.get(name);
+                    const skill = skillLookup.get(name);
                     if (!skill) return null;
                     return <motion.li variants={campaignItemVariants} key={name} style={{ '--skill-order': skillIndex } as CSSProperties}><span><SkillIcon name={name} icon={skill.icon as SkillIconKey} /></span><small>{name}</small></motion.li>;
                   })}</ul>

@@ -2,7 +2,23 @@
 
 import { useReducedMotion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
-import * as THREE from 'three';
+import {
+  AdditiveBlending,
+  BufferAttribute,
+  BufferGeometry,
+  Color,
+  Group,
+  LineBasicMaterial,
+  LineLoop,
+  PerspectiveCamera,
+  Points,
+  PointsMaterial,
+  Scene,
+  SRGBColorSpace,
+  Vector2,
+  Vector3,
+  WebGLRenderer,
+} from 'three';
 
 function seeded(index: number, salt: number) {
   const value = Math.sin(index * 91.17 + salt * 47.31) * 43758.5453;
@@ -12,8 +28,8 @@ function seeded(index: number, salt: number) {
 function createField(count: number) {
   const positions = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
-  const cool = new THREE.Color('#87cbe4');
-  const white = new THREE.Color('#dfe9ee');
+  const cool = new Color('#87cbe4');
+  const white = new Color('#dfe9ee');
 
   for (let index = 0; index < count; index += 1) {
     const offset = index * 3;
@@ -26,9 +42,9 @@ function createField(count: number) {
     colors[offset + 2] = color.b;
   }
 
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new BufferAttribute(positions, 3));
+  geometry.setAttribute('color', new BufferAttribute(colors, 3));
   return geometry;
 }
 
@@ -40,60 +56,61 @@ export default function SectionOrbitField({ className = '' }: { className?: stri
     const canvas = canvasRef.current;
     if (!canvas || reducedMotion) return;
 
-    let renderer: THREE.WebGLRenderer;
+    let renderer: WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'high-performance' });
+      renderer = new WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'high-performance' });
     } catch {
       return;
     }
 
     renderer.setClearColor(0x000000, 0);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.outputColorSpace = SRGBColorSpace;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(43, 1, 0.1, 24);
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(43, 1, 0.1, 24);
     camera.position.z = 6;
 
     const starGeometry = createField(window.innerWidth < 720 ? 100 : 210);
-    const starMaterial = new THREE.PointsMaterial({
+    const starMaterial = new PointsMaterial({
       size: window.innerWidth < 720 ? 0.015 : 0.02,
       transparent: true,
       opacity: 0.42,
       vertexColors: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
       sizeAttenuation: true,
     });
-    const stars = new THREE.Points(starGeometry, starMaterial);
+    const stars = new Points(starGeometry, starMaterial);
     scene.add(stars);
 
-    const rings = new THREE.Group();
+    const rings = new Group();
     rings.position.set(2.65, -0.25, -0.2);
     rings.rotation.set(1.1, 0.12, -0.22);
     scene.add(rings);
 
-    const ringMaterials: THREE.LineBasicMaterial[] = [];
-    const ringGeometries: THREE.BufferGeometry[] = [];
+    const ringMaterials: LineBasicMaterial[] = [];
+    const ringGeometries: BufferGeometry[] = [];
     [1.05, 1.42, 1.86].forEach((radius, index) => {
       const points = Array.from({ length: 96 }, (_, pointIndex) => {
         const angle = (pointIndex / 96) * Math.PI * 2;
-        return new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius, index * -0.08);
+        return new Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius, index * -0.08);
       });
-      const geometry = new THREE.BufferGeometry().setFromPoints(points);
-      const material = new THREE.LineBasicMaterial({
+      const geometry = new BufferGeometry().setFromPoints(points);
+      const material = new LineBasicMaterial({
         color: index === 1 ? '#72d5ee' : '#b7c7cf',
         transparent: true,
         opacity: index === 1 ? 0.17 : 0.08,
-        blending: THREE.AdditiveBlending,
+        blending: AdditiveBlending,
       });
-      const ring = new THREE.LineLoop(geometry, material);
+      const ring = new LineLoop(geometry, material);
       ringGeometries.push(geometry);
       ringMaterials.push(material);
       rings.add(ring);
     });
 
-    const pointer = new THREE.Vector2();
-    const pointerTarget = new THREE.Vector2();
+    const pointer = new Vector2();
+    const pointerTarget = new Vector2();
+    let bounds = canvas.getBoundingClientRect();
     let visible = true;
     let animationFrame = 0;
     const startedAt = performance.now();
@@ -106,14 +123,14 @@ export default function SectionOrbitField({ className = '' }: { className?: stri
       renderer.setSize(width, height, false);
       camera.aspect = width / Math.max(height, 1);
       camera.updateProjectionMatrix();
+      bounds = canvas.getBoundingClientRect();
     };
 
     const onPointerMove = (event: PointerEvent) => {
       if (event.pointerType === 'touch') return;
-      const rect = canvas.getBoundingClientRect();
       pointerTarget.set(
-        ((event.clientX - rect.left) / Math.max(rect.width, 1) - 0.5) * 2,
-        -((event.clientY - rect.top) / Math.max(rect.height, 1) - 0.5) * 2,
+        ((event.clientX - bounds.left) / Math.max(bounds.width, 1) - 0.5) * 2,
+        -((event.clientY - bounds.top) / Math.max(bounds.height, 1) - 0.5) * 2,
       );
     };
     const onPointerLeave = () => pointerTarget.set(0, 0);
@@ -141,11 +158,12 @@ export default function SectionOrbitField({ className = '' }: { className?: stri
       resume();
     }, { threshold: 0.02 });
     const resizeObserver = new ResizeObserver(resize);
+    const interactionTarget = canvas.closest('section') ?? canvas.parentElement;
 
     resizeObserver.observe(canvas.parentElement ?? canvas);
     intersectionObserver.observe(canvas);
-    canvas.parentElement?.addEventListener('pointermove', onPointerMove, { passive: true });
-    canvas.parentElement?.addEventListener('pointerleave', onPointerLeave);
+    interactionTarget?.addEventListener('pointermove', onPointerMove, { passive: true });
+    interactionTarget?.addEventListener('pointerleave', onPointerLeave);
     document.addEventListener('visibilitychange', resume);
     resize();
     resume();
@@ -154,8 +172,8 @@ export default function SectionOrbitField({ className = '' }: { className?: stri
       cancelAnimationFrame(animationFrame);
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
-      canvas.parentElement?.removeEventListener('pointermove', onPointerMove);
-      canvas.parentElement?.removeEventListener('pointerleave', onPointerLeave);
+      interactionTarget?.removeEventListener('pointermove', onPointerMove);
+      interactionTarget?.removeEventListener('pointerleave', onPointerLeave);
       document.removeEventListener('visibilitychange', resume);
       starGeometry.dispose();
       starMaterial.dispose();

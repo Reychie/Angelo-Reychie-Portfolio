@@ -1,17 +1,24 @@
 'use client';
 
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
-import type { PointerEvent as ReactPointerEvent } from 'react';
+import dynamic from 'next/dynamic';
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 
 import { CampaignScene } from '@/components/animations/OrbitalCampaign';
 import { ArrowDown } from '@/components/icons/InterfaceIcons';
 import { ScrollMotion, scrollMotionItemVariants } from '@/components/animations/ScrollMotion';
-import OrbitalField from '@/components/space/OrbitalField';
 import { CosmicPlate } from '@/components/ui/CosmicPlate';
 import { TextLink } from '@/components/ui/TextLink';
 
+const OrbitalField = dynamic(() => import('@/components/space/OrbitalField'), { ssr: false });
+
 export function HeroSection() {
   const reduced = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const boundsRef = useRef<DOMRectReadOnly | null>(null);
+  const pointerRef = useRef({ clientX: 0, clientY: 0 });
+  const pointerFrameRef = useRef<number | null>(null);
+  const [webglReady, setWebglReady] = useState(false);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const smoothX = useSpring(x, { stiffness: 45, damping: 22, mass: 0.8 });
@@ -21,15 +28,61 @@ export function HeroSection() {
   const sheenX = useTransform(smoothX, (value) => value * -0.55);
   const sheenY = useTransform(smoothY, (value) => value * -0.4);
 
+  useEffect(() => {
+    if (reduced) return;
+
+    const idleWindow = window as unknown as {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    if (idleWindow.requestIdleCallback && idleWindow.cancelIdleCallback) {
+      const idleId = idleWindow.requestIdleCallback(() => setWebglReady(true), { timeout: 900 });
+      return () => idleWindow.cancelIdleCallback?.(idleId);
+    }
+
+    const timeoutId = globalThis.setTimeout(() => setWebglReady(true), 32);
+    return () => globalThis.clearTimeout(timeoutId);
+  }, [reduced]);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const updateBounds = () => {
+      boundsRef.current = section.getBoundingClientRect();
+    };
+    const resizeObserver = new ResizeObserver(updateBounds);
+    resizeObserver.observe(section);
+    updateBounds();
+
+    return () => {
+      resizeObserver.disconnect();
+      if (pointerFrameRef.current !== null) cancelAnimationFrame(pointerFrameRef.current);
+    };
+  }, []);
+
   const onPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
     if (reduced || event.pointerType === 'touch') return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    x.set(((event.clientX - rect.left) / rect.width - 0.5) * -18);
-    y.set(((event.clientY - rect.top) / rect.height - 0.5) * -12);
+    pointerRef.current = { clientX: event.clientX, clientY: event.clientY };
+    if (pointerFrameRef.current !== null) return;
+    pointerFrameRef.current = requestAnimationFrame(() => {
+      pointerFrameRef.current = null;
+      const rect = boundsRef.current;
+      if (!rect) return;
+      x.set(((pointerRef.current.clientX - rect.left) / Math.max(rect.width, 1) - 0.5) * -18);
+      y.set(((pointerRef.current.clientY - rect.top) / Math.max(rect.height, 1) - 0.5) * -12);
+    });
+  };
+
+  const resetPointer = () => {
+    if (pointerFrameRef.current !== null) cancelAnimationFrame(pointerFrameRef.current);
+    pointerFrameRef.current = null;
+    x.set(0);
+    y.set(0);
   };
 
   return (
-    <section id="home" className="hero panel" onPointerMove={onPointerMove} onPointerLeave={() => { x.set(0); y.set(0); }}>
+    <section ref={sectionRef} id="home" className="hero panel" onPointerEnter={() => { boundsRef.current = sectionRef.current?.getBoundingClientRect() ?? null; }} onPointerMove={onPointerMove} onPointerLeave={resetPointer}>
       <CampaignScene variant="orbit" />
       <motion.div className="hero-art" style={{ x: plateX, y: plateY }} aria-hidden="true">
         <CosmicPlate src="/images/space/black-hole-hero.png" alt="" priority className="hero-art__plate" position="58% center" />
@@ -38,7 +91,7 @@ export function HeroSection() {
         <div className="photon-ring" />
         <div className="star-drift star-drift--one" />
         <div className="star-drift star-drift--two" />
-        <OrbitalField />
+        {webglReady ? <OrbitalField /> : null}
       </motion.div>
       <div className="hero-pointer-glow" aria-hidden="true" />
       <div className="hero-scrim" aria-hidden="true" />

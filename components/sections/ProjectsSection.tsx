@@ -14,21 +14,33 @@ import { useHydrated } from '@/hooks/useHydrated';
 import { projects } from '@/lib/content/projects-data';
 import { site } from '@/lib/content/site';
 
+const initialProjectIndex = Math.max(0, projects.findIndex((project) => project.id === 'useapp'));
+
 export function ProjectsSection() {
   const reducedMotion = useReducedMotion();
   const hydrated = useHydrated();
   const shouldReduceMotion = hydrated && reducedMotion;
-  const initialIndex = Math.max(0, projects.findIndex((project) => project.id === 'useapp'));
-  const [activeIndex, setActiveIndex] = useState(initialIndex);
+  const [activeIndex, setActiveIndex] = useState(initialProjectIndex);
   const [motionState, setMotionState] = useState<ProjectMotionState>('idle');
   const [promotingId, setPromotingId] = useState<string | null>(null);
-  const timers = useRef<number[]>([]);
+  const timers = useRef(new Set<number>());
   const orderedProjects = useMemo(
     () => projects.map((_, offset) => projects[(activeIndex + offset) % projects.length]),
     [activeIndex],
   );
 
-  useEffect(() => () => timers.current.forEach((timer) => window.clearTimeout(timer)), []);
+  useEffect(() => () => {
+    timers.current.forEach((timer) => window.clearTimeout(timer));
+    timers.current.clear();
+  }, []);
+
+  const schedule = (callback: () => void, delay: number) => {
+    const timer = window.setTimeout(() => {
+      timers.current.delete(timer);
+      callback();
+    }, delay);
+    timers.current.add(timer);
+  };
 
   const featureProject = (nextIndex: number) => {
     if (nextIndex === activeIndex || motionState !== 'idle') return;
@@ -40,14 +52,14 @@ export function ProjectsSection() {
       return;
     }
     setMotionState('departing');
-    timers.current.push(window.setTimeout(() => {
+    schedule(() => {
       setActiveIndex(nextIndex);
       setMotionState('settling');
-    }, 240));
-    timers.current.push(window.setTimeout(() => {
+    }, 240);
+    schedule(() => {
       setMotionState('idle');
       setPromotingId(null);
-    }, 860));
+    }, 860);
   };
 
   const move = (nextDirection: number) => {

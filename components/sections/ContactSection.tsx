@@ -10,11 +10,10 @@ import { SectionLabel } from '@/components/ui/SectionLabel';
 import { TextLink } from '@/components/ui/TextLink';
 import { site } from '@/lib/content/site';
 
-export function ContactSection() {
-  const email = "alejo.angeloreychie@gmail.com";
-  const gmailUrl =
-    `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
+const email = 'alejo.angeloreychie@gmail.com';
+const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
 
+export function ContactSection() {
   return (
     <section id="contact" className="contact panel section-pad">
       <CampaignScene variant="transmission" />
