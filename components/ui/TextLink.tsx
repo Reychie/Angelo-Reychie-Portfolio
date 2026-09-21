@@ -16,7 +16,7 @@ export function TextLink({ href, children, primary = false, external = false, cl
       className={`action-link ${primary ? 'action-link--primary' : ''} ${className}`}
       href={href}
       target={external ? '_blank' : undefined}
-      rel={external ? 'noreferrer' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
     >
       <span>{children}</span><ArrowUpRight />
       {primary ? <i className="action-link__sheen" aria-hidden="true" /> : null}

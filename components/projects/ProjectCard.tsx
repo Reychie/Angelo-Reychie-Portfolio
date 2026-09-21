@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 
 import { ArrowUpRight, ChevronLeft, GitHubIcon } from '@/components/icons/InterfaceIcons';
+import { useHydrated } from '@/hooks/useHydrated';
 import type { Project } from '@/lib/content/projects-data';
 import { portfolioEase } from '@/lib/motion';
 
@@ -20,6 +21,8 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, featured = false, index, motionState, promoting, onSelect }: ProjectCardProps) {
   const reduced = useReducedMotion();
+  const hydrated = useHydrated();
+  const shouldReduceMotion = hydrated && reduced;
   const departure = motionState === 'departing'
     ? promoting
       ? { x: 22, y: 76, scale: 0.91, opacity: 0.54, rotateY: -7 }
@@ -37,9 +40,9 @@ export function ProjectCard({ project, featured = false, index, motionState, pro
   return (
     <motion.article
       className={`project-card ${featured ? 'project-card--featured' : 'project-card--secondary'} ${promoting ? 'project-card--promoting' : ''}`}
-      layout={reduced ? false : true}
-      animate={reduced ? undefined : departure}
-      whileHover={reduced || motionState !== 'idle' ? undefined : { y: -7 }}
+      layout={shouldReduceMotion ? false : true}
+      animate={shouldReduceMotion ? undefined : departure}
+      whileHover={shouldReduceMotion || motionState !== 'idle' ? undefined : { y: -9, scale: 1.006, rotateX: -1.2, rotateY: featured ? 1.4 : -2.4 }}
       transition={{ layout: { duration: 0.62, ease: portfolioEase }, duration: motionState === 'departing' ? 0.24 : 0.58, ease: portfolioEase }}
     >
       <div className="project-card__frame" aria-hidden="true" />

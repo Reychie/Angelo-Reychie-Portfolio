@@ -24,16 +24,20 @@ test('tracks the visible section and exposes explicit project actions', async ({
   await page.goto('/');
   await page.locator('.desktop-nav').getByRole('button', { name: 'Projects' }).click();
   await expect(page.locator('.desktop-nav button[aria-current="page"]')).toHaveText('Projects', { timeout: 10_000 });
+  await expect(page.locator('.orbital-campaign__sector strong')).toHaveText('03 / Projects');
   await expect(page.getByText('Live project').first()).toBeVisible();
   await expect(page.getByText('Source').first()).toBeVisible();
   await page.locator('.desktop-nav').getByRole('button', { name: 'Skills', exact: true }).click();
   await expect(page.locator('#skills')).toBeInViewport();
+  await expect(page.locator('.orbital-campaign__sector strong')).toHaveText('05 / Skills');
 });
 
 test('renders the requested Alejo spelling and animates project promotion without remounting', async ({ page }) => {
   await page.setViewportSize({ width: 1536, height: 960 });
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/');
+  await expect(page.locator('.orbital-campaign')).toBeAttached();
+  await expect(page.locator('.campaign-scene')).toHaveCount(6);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Reychie Alejo');
   await page.locator('#projects').scrollIntoViewIfNeeded();
   await expect(page.locator('.project-card--featured h3')).toHaveText('USEAPP');
@@ -72,7 +76,44 @@ test('renders the requested portfolio copy, supplied Projects plate, and contact
   await expect(page.getByText('Available for new roles', { exact: true })).toBeVisible();
   await expect(page.locator('.contact-email')).toHaveCount(0);
   await expect(page.getByText('alejo.angeloreychie@gmail.com', { exact: true })).toHaveCount(0);
+  const emailLink = page.getByRole('link', { name: 'Send an Email' });
+  await expect(emailLink).toHaveAttribute('href', 'https://mail.google.com/mail/?view=cm&fs=1&to=alejo.angeloreychie%40gmail.com');
+  await expect(emailLink).toHaveAttribute('target', '_blank');
+  await expect(emailLink).toHaveAttribute('rel', /noopener/);
+  await expect(emailLink).toHaveAttribute('rel', /noreferrer/);
   await expect(page.locator('.linkedin-link')).toHaveAttribute('href', 'https://www.linkedin.com/in/angelo-reychie-alejo-41970225b/');
+});
+
+test('keeps the Hero J and Skills S unclipped and replays scroll entrances', async ({ page }) => {
+  await page.setViewportSize({ width: 1536, height: 960 });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/');
+  await expect(page.locator('.hero h1')).toBeVisible();
+
+  const heroType = await page.locator('.hero h1').evaluate((heading) => {
+    const style = getComputedStyle(heading);
+    return { clipPath: style.clipPath, overflow: style.overflow };
+  });
+  expect(heroType).toEqual({ clipPath: 'none', overflow: 'visible' });
+
+  const skillsIntro = page.locator('.skills-intro');
+  await skillsIntro.scrollIntoViewIfNeeded();
+  await expect(skillsIntro).toBeVisible();
+  await expect(page.locator('.skills-intro h2')).toContainText(/Tools &\s*Technologies/);
+  const skillsType = await page.locator('.skills-intro h2').evaluate((heading) => {
+    const headingRect = heading.getBoundingClientRect();
+    const wrapperRect = heading.parentElement!.getBoundingClientRect();
+    return {
+      clipPath: getComputedStyle(heading.parentElement!).clipPath,
+      fitsWrapper: headingRect.right <= wrapperRect.right + 1,
+    };
+  });
+  expect(skillsType).toEqual({ clipPath: 'none', fitsWrapper: true });
+
+  await page.locator('#home').scrollIntoViewIfNeeded();
+  await expect.poll(() => skillsIntro.evaluate((node) => Number(getComputedStyle(node).opacity))).toBeLessThan(0.1);
+  await skillsIntro.scrollIntoViewIfNeeded();
+  await expect.poll(() => skillsIntro.evaluate((node) => Number(getComputedStyle(node).opacity))).toBeGreaterThan(0.99);
 });
 
 test('mounts both Three.js fields and keeps the verified experience visible with reduced motion', async ({ page }) => {
@@ -90,6 +131,8 @@ test('mounts both Three.js fields and keeps the verified experience visible with
   await expect.poll(async () => aboutField.evaluate((node) => (node as HTMLCanvasElement).width > 0)).toBe(true);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.reload();
+  await expect(page.locator('.orbital-campaign')).toHaveCSS('display', 'none');
+  await expect(page.locator('.campaign-scene').first()).toHaveCSS('display', 'none');
   await page.locator('#experience').scrollIntoViewIfNeeded();
   await expect(page.getByRole('heading', { name: 'Full-Stack Developer' })).toBeVisible();
   await expect(page.getByText('Compassionate Home Health Services')).toBeVisible();
@@ -156,7 +199,7 @@ test('loads every section asset and exposes verified destinations without runtim
     'https://useapp-f783.vercel.app/',
     'https://github.com/Reychie',
     'https://www.linkedin.com/in/angelo-reychie-alejo-41970225b/',
-    'mailto:alejo.angeloreychie@gmail.com',
+    'https://mail.google.com/mail/?view=cm&fs=1&to=alejo.angeloreychie%40gmail.com',
   ]) {
     expect(result.hrefs).toContain(destination);
   }

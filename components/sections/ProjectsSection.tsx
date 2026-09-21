@@ -4,16 +4,20 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Atmosphere } from '@/components/animations/Atmosphere';
-import { Reveal } from '@/components/animations/Reveal';
+import { CampaignScene } from '@/components/animations/OrbitalCampaign';
+import { campaignHeadingVariants, scrollMotionItemVariants, ScrollMotion } from '@/components/animations/ScrollMotion';
 import { ChevronLeft, ChevronRight, CrossMark } from '@/components/icons/InterfaceIcons';
 import { ProjectCard, type ProjectMotionState } from '@/components/projects/ProjectCard';
 import { SectionLabel } from '@/components/ui/SectionLabel';
 import { TextLink } from '@/components/ui/TextLink';
+import { useHydrated } from '@/hooks/useHydrated';
 import { projects } from '@/lib/content/projects-data';
 import { site } from '@/lib/content/site';
 
 export function ProjectsSection() {
   const reducedMotion = useReducedMotion();
+  const hydrated = useHydrated();
+  const shouldReduceMotion = hydrated && reducedMotion;
   const initialIndex = Math.max(0, projects.findIndex((project) => project.id === 'useapp'));
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const [motionState, setMotionState] = useState<ProjectMotionState>('idle');
@@ -30,7 +34,7 @@ export function ProjectsSection() {
     if (nextIndex === activeIndex || motionState !== 'idle') return;
     const target = projects[nextIndex];
     setPromotingId(target.id);
-    if (reducedMotion) {
+    if (shouldReduceMotion) {
       setActiveIndex(nextIndex);
       setPromotingId(null);
       return;
@@ -52,22 +56,23 @@ export function ProjectsSection() {
 
   return (
     <section id="projects" className="projects panel section-pad">
+      <CampaignScene variant="docking" />
       <Atmosphere src="/images/space/lunar-contact.png" className="projects-atmosphere" position="68% 54%" strength={34} />
       <div className="section-coordinate section-coordinate--projects" aria-hidden="true">PROJECT ARRAY<br />02 VERIFIED SYSTEMS</div>
       <div className="page-grid project-layout">
-        <Reveal className="projects-intro">
-          <SectionLabel number="03" label="Projects" />
-          <h2>Projects I’ve<br />Built</h2>
-          <p>A selection of systems and applications I’ve developed across professional, academic, and personal projects.</p>
-          <TextLink href={site.social.github} external>View GitHub</TextLink>
-        </Reveal>
-        <Reveal className="project-stage" delay={0.08} kind="visual">
+        <ScrollMotion className="projects-intro" kind="group" staggerChildren={0.1}>
+          <motion.div variants={scrollMotionItemVariants}><SectionLabel number="03" label="Projects" /></motion.div>
+          <motion.h2 variants={campaignHeadingVariants}>Projects I’ve<br />Built</motion.h2>
+          <motion.p variants={scrollMotionItemVariants}>A selection of systems and applications I’ve developed across professional, academic, and personal projects.</motion.p>
+          <motion.div variants={scrollMotionItemVariants}><TextLink href={site.social.github} external>View GitHub</TextLink></motion.div>
+        </ScrollMotion>
+        <ScrollMotion className="project-stage" delay={0.08} kind="stage">
           <div className="project-controls" aria-label="Project navigation">
-            <motion.button type="button" onClick={() => move(-1)} aria-label="Show previous project" whileTap={{ scale: 0.9 }} disabled={motionState !== 'idle'}><ChevronLeft /></motion.button>
-            <motion.button type="button" onClick={() => move(1)} aria-label="Show next project" whileTap={{ scale: 0.9 }} disabled={motionState !== 'idle'}><ChevronRight /></motion.button>
+            <motion.button type="button" onClick={() => move(-1)} aria-label="Show previous project" whileTap={shouldReduceMotion ? undefined : { scale: 0.9 }} disabled={motionState !== 'idle'}><ChevronLeft /></motion.button>
+            <motion.button type="button" onClick={() => move(1)} aria-label="Show next project" whileTap={shouldReduceMotion ? undefined : { scale: 0.9 }} disabled={motionState !== 'idle'}><ChevronRight /></motion.button>
           </div>
           <div className="sr-only" aria-live="polite">Showing {projects[activeIndex].title} as the featured project.</div>
-          <motion.div className="projects-cards" layout>
+          <motion.div className="projects-cards" layout={shouldReduceMotion ? false : true}>
             {orderedProjects.map((project, index) => (
               <ProjectCard
                 key={project.id}
@@ -80,7 +85,7 @@ export function ProjectsSection() {
               />
             ))}
           </motion.div>
-        </Reveal>
+        </ScrollMotion>
         <CrossMark className="project-cross" />
       </div>
     </section>

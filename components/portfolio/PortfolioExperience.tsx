@@ -3,6 +3,7 @@
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 
+import { OrbitalCampaign } from '@/components/animations/OrbitalCampaign';
 import { Header } from '@/components/layout/Header';
 import { SectionRail } from '@/components/layout/SectionRail';
 import { AboutSection } from '@/components/sections/AboutSection';
@@ -52,6 +53,7 @@ export default function PortfolioExperience() {
     <div ref={rootRef} className="portfolio-shell">
       <a className="skip-link" href="#home">Skip to main content</a>
       <motion.div className="scroll-progress" style={{ scaleX: progress, opacity: topOpacity }} aria-hidden="true" />
+      <OrbitalCampaign active={active} />
       <Header active={active} onNavigate={setActive} />
       <SectionRail active={active} onNavigate={setActive} />
       <main>

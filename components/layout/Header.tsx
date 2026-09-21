@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 
 import { ArrowUpRight, CloseIcon, MenuIcon } from '@/components/icons/InterfaceIcons';
+import { useHydrated } from '@/hooks/useHydrated';
 import { navigation, sections, type SectionId } from '@/lib/content/navigation-data';
 
 interface HeaderProps {
@@ -15,6 +16,8 @@ export function Header({ active, onNavigate }: HeaderProps) {
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
+  const hydrated = useHydrated();
+  const shouldReduceMotion = hydrated && reducedMotion;
   const scrollTo = (id: SectionId) => {
     setOpen(false);
     onNavigate(id);
@@ -69,7 +72,7 @@ export function Header({ active, onNavigate }: HeaderProps) {
         </nav>
         <div className="header-actions">
           <span className="header-signal" aria-hidden="true" />
-          <motion.button className="header-cta" onClick={() => scrollTo('contact')} whileTap={{ scale: 0.97 }} transition={{ type: 'spring', stiffness: 380, damping: 24 }}>Let&apos;s talk <ArrowUpRight /></motion.button>
+          <motion.button className="header-cta" onClick={() => scrollTo('contact')} whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }} transition={{ type: 'spring', stiffness: 380, damping: 24 }}>Let&apos;s talk <ArrowUpRight /></motion.button>
           <button type="button" className="menu-toggle" onClick={() => setOpen(true)} aria-label="Open navigation" aria-expanded={open} aria-controls="site-mobile-navigation"><MenuIcon /></button>
         </div>
       </header>
