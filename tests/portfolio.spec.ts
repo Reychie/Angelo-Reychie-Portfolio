@@ -27,6 +27,17 @@ test('tracks the visible section and exposes explicit project actions', async ({
   await expect(page.locator('.orbital-campaign__sector strong')).toHaveText('03 / Projects');
   await expect(page.getByText('Live project').first()).toBeVisible();
   await expect(page.getByText('Source').first()).toBeVisible();
+  const useappSource = page.locator('.project-card', { hasText: 'USEAPP' }).locator('.project-card__source');
+  const neAttendSource = page.locator('.project-card', { hasText: 'NE-Attend' }).locator('.project-card__source');
+  for (const source of [useappSource, neAttendSource]) {
+    await expect(source).toHaveJSProperty('tagName', 'A');
+    await expect(source).toHaveAttribute('target', '_blank');
+    await expect(source).toHaveAttribute('rel', /noopener/);
+    await expect(source).toHaveAttribute('rel', /noreferrer/);
+  }
+  await expect(useappSource).toHaveAttribute('href', 'https://github.com/Reychie/USEAPP');
+  await expect(neAttendSource).toHaveAttribute('href', 'https://github.com/Reychie/NE_ATTEND-Update');
+  await expect(useappSource).toHaveAttribute('class', await neAttendSource.getAttribute('class') ?? '');
   await page.locator('.desktop-nav').getByRole('button', { name: 'Skills', exact: true }).click();
   await expect(page.locator('#skills')).toBeInViewport();
   await expect(page.locator('.orbital-campaign__sector strong')).toHaveText('05 / Skills');
@@ -221,6 +232,48 @@ test('loads every section asset and exposes verified destinations without runtim
     const logo = page.locator(`img[title="${name} logo"]`);
     await expect(logo).toBeVisible();
     await expect.poll(async () => logo.evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  }
+  const logoChecks = [
+    {
+      logo: page.locator('.experience-tech', { hasText: 'Next.js' }).locator('img[title="Next.js logo"]'),
+      source: '/images/icons/nextjs-logo.svg',
+      size: 22,
+    },
+    {
+      logo: page.locator('.skill-group li', { hasText: 'Next.js' }).locator('img[title="Next.js logo"]'),
+      source: '/images/icons/nextjs-logo.svg',
+      size: 24,
+    },
+    {
+      logo: page.locator('.skill-group li', { hasText: 'MySQL' }).locator('img[title="MySQL logo"]'),
+      source: '/images/icons/mysql-logo.svg',
+      size: 27,
+    },
+  ];
+  for (const { logo, source, size } of logoChecks) {
+    await expect(logo).toHaveAttribute('src', source);
+    const metrics = await logo.evaluate((image) => {
+      const element = image as HTMLImageElement;
+      const imageRect = element.getBoundingClientRect();
+      const containerRect = element.parentElement!.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return {
+        naturalWidth: element.naturalWidth,
+        naturalHeight: element.naturalHeight,
+        width: Number.parseFloat(style.width),
+        height: Number.parseFloat(style.height),
+        contained:
+          imageRect.left >= containerRect.left - 1 &&
+          imageRect.top >= containerRect.top - 1 &&
+          imageRect.right <= containerRect.right + 1 &&
+          imageRect.bottom <= containerRect.bottom + 1,
+      };
+    });
+    expect(metrics.naturalWidth).toBeGreaterThan(0);
+    expect(metrics.naturalHeight).toBeGreaterThan(0);
+    expect(metrics.width).toBe(size);
+    expect(metrics.height).toBe(size);
+    expect(metrics.contained).toBe(true);
   }
   for (const destination of [
     'https://github.com/Reychie/NE_ATTEND-Update',

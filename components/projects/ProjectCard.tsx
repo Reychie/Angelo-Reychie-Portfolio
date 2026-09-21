@@ -60,7 +60,7 @@ export function ProjectCard({ project, featured = false, index, motionState, pro
         </div>
         <div className="project-card__footer">
           <ul aria-label={`${project.title} technologies`}>{project.technologies.slice(0, featured ? 4 : 3).map((tech) => <li key={tech}>{tech}</li>)}</ul>
-          <a className="project-card__source" href={project.githubUrl} target="_blank" rel="noreferrer" aria-label={`View ${project.title} source on GitHub`}><GitHubIcon /><span>Source</span><ArrowUpRight /></a>
+          <a className="project-card__source" href={project.githubUrl} target="_blank" rel="noopener noreferrer" aria-label={`View ${project.title} source on GitHub`}><GitHubIcon /><span>Source</span><ArrowUpRight /></a>
         </div>
       </div>
     </motion.article>

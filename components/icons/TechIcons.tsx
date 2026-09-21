@@ -8,7 +8,6 @@ const brandLogoSlugs: Partial<Record<SkillIconKey, string>> = {
   python: 'python',
   php: 'php',
   react: 'react',
-  nextjs: 'nextjs',
   reactnative: 'react',
   html: 'html5',
   css: 'css3',
@@ -17,7 +16,6 @@ const brandLogoSlugs: Partial<Record<SkillIconKey, string>> = {
   express: 'express',
   socketio: 'socketdotio',
   postgresql: 'postgresql',
-  mysql: 'mysql',
   supabase: 'supabase',
   mongodb: 'mongodb',
   gemini: 'google-gemini',
@@ -31,6 +29,8 @@ const brandLogoSlugs: Partial<Record<SkillIconKey, string>> = {
 const localLogos: Partial<Record<SkillIconKey, string>> = {
   cpp: '/images/icons/cpp-logo.png',
   java: '/images/icons/java-logo.png',
+  mysql: '/images/icons/mysql-logo.svg',
+  nextjs: '/images/icons/nextjs-logo.svg',
   vite: '/images/icons/vite-logo.png',
   vscode: '/images/icons/vscode-logo.png',
 };
@@ -39,14 +39,8 @@ function BrandLogo({ icon, name }: { icon: SkillIconKey; name: string }) {
   const slug = brandLogoSlugs[icon];
   if (!slug) return null;
   // Soft-light treatment for dark-on-dark brand marks (no background plate).
-  const softLogo = icon === 'github' || icon === 'expo' || icon === 'vercel' || icon === 'nextjs' || icon === 'express' || icon === 'socketio';
-  const nextMark =
-    'data:image/svg+xml,' +
-    encodeURIComponent(
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#e8eef2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.85 0 3.58-.5 5.07-1.38L8.3 8.3v7.4h1.7V10.6l6.66 9.42A9.96 9.96 0 0 0 22 12c0-5.52-4.48-10-10-10Zm4.2 14.1-1.45-2.05V7.9h1.7v8.2h-.25Z"/></svg>',
-    );
-  const color = icon === 'mysql' ? '3f9cc5' : softLogo && icon !== 'nextjs' ? 'e8eef2' : undefined;
-  const src = icon === 'nextjs' ? nextMark : color ? `https://cdn.simpleicons.org/${slug}/${color}` : `https://cdn.simpleicons.org/${slug}`;
+  const softLogo = icon === 'github' || icon === 'expo' || icon === 'vercel' || icon === 'express' || icon === 'socketio';
+  const src = softLogo ? `https://cdn.simpleicons.org/${slug}/e8eef2` : `https://cdn.simpleicons.org/${slug}`;
 
   return (
     <img
@@ -121,11 +115,17 @@ export function SkillIcon({ name, icon }: { name: string; icon: SkillIconKey }) 
 
   const localSrc = localLogos[icon];
   if (localSrc) {
+    const classes = [
+      'h-4 w-4 shrink-0 object-contain',
+      icon === 'nextjs' ? 'tech-logo-soft tech-logo-nextjs' : '',
+      icon === 'mysql' ? 'tech-logo-mysql' : '',
+    ].filter(Boolean).join(' ');
+
     return (
       <img
         src={localSrc}
         alt=""
-        className="h-4 w-4 shrink-0 object-contain"
+        className={classes}
         loading="lazy"
         decoding="async"
         aria-hidden="true"
