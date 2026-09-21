@@ -431,7 +431,7 @@ h2 { margin-bottom: 24px; color: var(--ink); font-size: var(--text-heading); fon
 .project-controls button:hover { color: #fff; border-color: rgba(255,255,255,.58); background: rgba(18,25,29,.82); transform: translateY(-2px); }
 .project-controls button:disabled { cursor: wait; opacity: .46; transform: none; }
 .project-controls button svg { width: 17px; }
-.projects-cards { min-height: 625px; display: grid; grid-template-columns: minmax(0, 1.62fr) minmax(220px, .78fr); gap: 20px; align-items: end; transform-style: preserve-3d; }
+.projects-cards { min-height: 625px; display: grid; grid-template-columns: minmax(0, 1.62fr) minmax(220px, .78fr); gap: 20px; align-items: end; transform-style: flat; }
 .project-card { position: relative; min-width: 0; overflow: hidden; border: 1px solid rgba(186,210,224,.24); background: linear-gradient(160deg, rgba(8,15,19,.98), rgba(3,7,9,.98)); clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 18px 100%, 0 calc(100% - 18px)); transform-style: preserve-3d; transition: border-color 300ms ease, box-shadow 420ms var(--ease-out); }
 .project-card::before { content: ""; position: absolute; z-index: 4; top: -20%; bottom: -20%; left: -46%; width: 34%; pointer-events: none; background: linear-gradient(90deg, transparent, rgba(114,213,238,.1), rgba(255,255,255,.15), transparent); mix-blend-mode: screen; transform: skewX(-13deg) translateX(-160%); transition: transform 950ms var(--ease-out); }
 .project-card:hover::before { transform: skewX(-13deg) translateX(520%); }

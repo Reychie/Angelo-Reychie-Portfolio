@@ -27,20 +27,16 @@ test('tracks the visible section and exposes explicit project actions', async ({
   await expect(page.locator('.orbital-campaign__sector strong')).toHaveText('03 / Projects');
   await expect(page.getByText('Live project').first()).toBeVisible();
   await expect(page.getByText('Source').first()).toBeVisible();
-  const useappSource = page.locator('.project-card', { hasText: 'USEAPP' }).locator('.project-card__source');
-  const neAttendSource = page.locator('.project-card', { hasText: 'NE-Attend' }).locator('.project-card__source');
-  for (const source of [useappSource, neAttendSource]) {
-    await expect(source).toHaveJSProperty('tagName', 'A');
-    await expect(source).toHaveAttribute('target', '_blank');
-    await expect(source).toHaveAttribute('rel', /noopener/);
-    await expect(source).toHaveAttribute('rel', /noreferrer/);
-  }
+  const useappSource = page.locator('.project-card--featured .project-card__source');
+  await expect(useappSource).toHaveJSProperty('tagName', 'A');
+  await expect(useappSource).toHaveAttribute('target', '_blank');
+  await expect(useappSource).toHaveAttribute('rel', /noopener/);
+  await expect(useappSource).toHaveAttribute('rel', /noreferrer/);
   await expect(useappSource).toHaveAttribute('href', 'https://github.com/Reychie/USEAPP');
-  await expect(neAttendSource).toHaveAttribute('href', 'https://github.com/Reychie/NE_ATTEND-Update');
-  await expect(useappSource).toHaveAttribute('class', await neAttendSource.getAttribute('class') ?? '');
+  await expect(page.locator('.project-card--secondary .project-card__source')).toHaveCount(0);
   await page.locator('.desktop-nav').getByRole('button', { name: 'Skills', exact: true }).click();
   await expect(page.locator('#skills')).toBeInViewport();
-  await expect(page.locator('.orbital-campaign__sector strong')).toHaveText('05 / Skills');
+  await expect(page.locator('.orbital-campaign__sector strong')).toHaveText('05 / Skills', { timeout: 10_000 });
 });
 
 test('renders the requested Alejo spelling and animates project promotion without remounting', async ({ page }) => {
@@ -63,6 +59,49 @@ test('renders the requested Alejo spelling and animates project promotion withou
   await page.getByRole('button', { name: 'Feature USEAPP' }).click();
   await page.waitForTimeout(900);
   await expect(page.locator('.project-card--featured h3')).toHaveText('USEAPP');
+});
+
+test('keeps Source clickable only on the active project across desktop and mobile promotion', async ({ browser }) => {
+  for (const viewport of [{ width: 1536, height: 960 }, { width: 390, height: 844 }]) {
+    const context = await browser.newContext({ viewport });
+    await context.route(/^https:\/\/github\.com\/Reychie\//, (route) => route.fulfill({ status: 200, contentType: 'text/html', body: 'Repository destination' }));
+    const page = await context.newPage();
+    await page.goto('/');
+    await page.locator('#projects').scrollIntoViewIfNeeded();
+
+    const verifyActiveProject = async (title: string, repositoryUrl: string) => {
+      const activeCard = page.locator('.project-card--featured');
+      const inactiveCard = page.locator('.project-card--secondary');
+      const source = activeCard.getByRole('link', { name: `View ${title} source on GitHub` });
+
+      await expect(activeCard.getByRole('heading', { level: 3 })).toHaveText(title);
+      await expect(source).toBeVisible();
+      await expect(source).toBeEnabled();
+      await expect(source).toHaveAttribute('href', repositoryUrl);
+      await expect(source).toHaveAttribute('target', '_blank');
+      await expect(source).toHaveAttribute('rel', /noopener/);
+      await expect(source).toHaveAttribute('rel', /noreferrer/);
+      await source.focus();
+      await expect(source).toBeFocused();
+      await expect(activeCard.locator('.project-card__live')).toHaveCount(1);
+      await expect(inactiveCard.locator('.project-card__live')).toHaveCount(0);
+      await expect(inactiveCard.locator('.project-card__source')).toHaveCount(0);
+
+      const popupPromise = page.waitForEvent('popup');
+      await source.click();
+      const popup = await popupPromise;
+      expect(popup.url()).toBe(repositoryUrl);
+      await popup.close();
+    };
+
+    await verifyActiveProject('USEAPP', 'https://github.com/Reychie/USEAPP');
+    await page.locator('.project-card--secondary .project-card__select').click();
+    await expect(page.locator('.project-card--featured h3')).toHaveText('NE-Attend', { timeout: 3_000 });
+    await expect(page.locator('.project-controls button').first()).toBeEnabled({ timeout: 3_000 });
+    await verifyActiveProject('NE-Attend', 'https://github.com/Reychie/NE_ATTEND-Update');
+
+    await context.close();
+  }
 });
 
 test('renders the requested portfolio copy, supplied Projects plate, and contact availability state', async ({ page }) => {
@@ -276,7 +315,6 @@ test('loads every section asset and exposes verified destinations without runtim
     expect(metrics.contained).toBe(true);
   }
   for (const destination of [
-    'https://github.com/Reychie/NE_ATTEND-Update',
     'https://github.com/Reychie/USEAPP',
     'https://useapp-f783.vercel.app/',
     'https://github.com/Reychie',
@@ -289,6 +327,8 @@ test('loads every section asset and exposes verified destinations without runtim
   await page.getByRole('button', { name: 'Feature NE-Attend' }).click();
   await page.waitForTimeout(900);
   await expect(page.locator('.project-card--featured .project-card__media')).toHaveAttribute('href', 'https://ne-attend-update.vercel.app/');
+  await expect(page.locator('.project-card--featured .project-card__source')).toHaveAttribute('href', 'https://github.com/Reychie/NE_ATTEND-Update');
+  await expect(page.locator('.project-card--secondary .project-card__source')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
